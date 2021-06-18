@@ -1,0 +1,33 @@
+The binary main function calls the function p,
+who uses gets.
+Wee see that the function checks some part of the memory after gets against the value 0xb0000000,
+it is to check that the return pointer does not point to the stack
+
+We also see that the function calls strdup on our input at the end, so our input will also be on the heap
+
+So we can execute a shellcode, at the adress on the heap
+
+I found a shellcode here https://0xrick.github.io/binary-exploitation/bof5/#ShellCode
+
+This shellcode is 55 bytes long, and we know with the same trick from level1 that we need 80 bytes before overriding the return pointer,
+So we need 25 bytes of padding
+
+We also need to find what is the return of strdup, to get the adress on the heap that we need to set as a return pointer
+
+gdb level2
+break *0x0804853d (the adress just after strdup)
+r
+(input anything)
+x/s $eax print the adress inside eax (the return of strdup), and the content at this adress as a string
+
+So the adress of the pointer on the stack will be 0x804a008
+
+We just need to construct our exploit string, this is done in the same manner as the level1, with a shellcode
+
+scp -P 4242 ./exploit.py level2@<vm adress>:/tmp/exploitlvl2.py
+
+On the vm
+pyhon tmp/exploitlvl2.py > /tmp/overflowlvl2
+cat /tmp/overflowlvl2 | ./level2
+
+The shellcode reopens a tty on stdin, so we don't have to do it with cat

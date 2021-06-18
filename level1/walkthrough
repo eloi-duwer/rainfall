@@ -1,0 +1,29 @@
+gdb ./level1
+
+we use "info func" in gdb to see the list of functions in the binary
+there is a function "run", it calls system("/usr/sh")
+
+We also see that the main functions calls gets, without anything else.
+
+We can use a buffer overflow attack to override the return pointer of the main function,
+who will return to run
+
+To find how many characters we need to write before overriding the return pointer
+we lauch the binary in gdb and as input for gets we send
+aaaabbbbccccddddeeeeffffgggghhhhiiiijjjjkkkkllllmmmmnnnnooooppppqqqqrrrrssssttttuuuuvvvvxxxxyyyyzzzz
+The binary segfaults at adress 0x74747474, 0x74 in ascii is 't'
+
+Our exploit string must then have 76 random chars then the adress of the run function, in high endian
+The file exploit.py generates such a string
+
+scp -P 4242 ./exploit.py level1@<ip of the VM>:/tmp/exploit.py
+
+In the vm:
+python /tmp/exploit.py > /tmp/overflow
+(cat /tmp/overlfow && cat) | ./level1
+
+As "cat" closes the stdin of the binary,
+the opened shell opened in "run" is immediately closed
+if we don't open another one. This is done with the "&& cat" part of the line
+
+We can then cat /user/level2/.pass to get the flag

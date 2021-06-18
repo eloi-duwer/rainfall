@@ -1,0 +1,11 @@
+This level is basically the same as level3, just the call to printf is on another function so the stack layout is different.
+
+In this case we have to set the variable at adress 0x8049810 to the value 0x1025544 (16930116 in dec),
+
+And the %n argument must be the 12th.
+
+We will use se same trick as in level3 to write any number of characters, and the $ modifier that let's us specify for the
+%n flag that it will be the 12th one, without having to specify the others.
+
+python -c "print '\x10\x98\x04\x08%+.16930111d%12\$n'" | ./level4
+The program calls "/bin/cat /home/user/level5/.pass" instead of /bin/sh so we directly have the flag, after the output of printf

@@ -1,0 +1,13 @@
+The binary calls strcpy on argv[1], we can do a buffer orverflow with it
+
+We also see that the binary uses a pointer to function that is 
+called at the end of main, this pointer to function is malloced after the buffer for strcpy.
+
+We can probably override this buffer to function with the adress of the function n
+(found with info func, the adress is 0x08048454), who cats the pass for level7.
+
+The easiest solution is to spam the adress, as we don't have to find exactly where it is located relative to the buffer:
+
+./level6 `python -c "print '\x54\x84\x04\x08' * 25"`
+
+We could also find the offset by comparing the pointers malloc returned, if we needed to be more precise

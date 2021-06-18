@@ -1,0 +1,14 @@
+We use gdb to see what appends in the binary
+
+gdb level0
+disass main
+
+We see at adress 0x08048ed4 a call to atoi,
+the return of atoi is compared to 0x1a7 (423 in dec),
+if they are equal the binary sets the uid and gid, and then
+calls execv with argument "/bin/sh", it effectively launches a shell
+with level1 as the user
+
+./level0 423
+cat /home/user/level1/.pass
+And we get the flag
