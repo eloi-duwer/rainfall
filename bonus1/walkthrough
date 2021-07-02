@@ -1,0 +1,22 @@
+We see that the program copies 4 * n characters from argv[2] to a buffer,
+then checks if n is at a certain value, but only if n is inferior or equal to 9
+
+But during the comparison with 9 n is a signed integer, but during the copy n is
+converted to size_t, an unsigned integer.
+We can then enter a negative number in argv[1], which will pass the test, and with the conversion to size_t it
+will become a positive integer, and thus do a buffer overflow and override n, as it is after the buffer (n is 0x3c(%esp) and the buffer is 0x14(%esp), 40 bytes later)
+
+So we need that 4 * n = 44, to overflow just enough the buffer.
+
+I made a small program (find_good_number.c) that finds a suitable value:
+gcc find_good_number.c -m32 -O3
+./a.out
+The right value for n is -2147483637
+
+So (size_t)-2147483637 * 4 = 44
+
+Our exploit string (in argv[2]) will simply be 40 bytes of padding to fill the buffer, and the walue expected after the memcpy: 0x574f4c46 in high-endian:
+
+./bonus1 -2147483637 `python -c "print 'x' * 40 + '\x46\x4c\x4f\x57'"`
+
+And we have a shell

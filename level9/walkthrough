@@ -26,7 +26,7 @@ info reg
 
 So out exploit string will be: <pointer to shellcode> + <shellcode> + <padding to get a total of 108 bytes> + <pointer to the start of the string>
 
-As out shellcode is 55 bytes, we need 108 - 55 - 4 = 49 bytes of padding
+As our shellcode is 55 bytes, we need 108 - 55 - 4 = 49 bytes of padding
 
 We still need to find the adress of the start of the string.
 The adress is returned by memcpy, so we just need to examine $eax after the call.
