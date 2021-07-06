@@ -1,0 +1,10 @@
+We cannot easily use gdb on this one, as the .pass file is directly opened and read,
+if we do it on gdb we don't have the rights to it and the program exits
+
+Luckily we can bypass the program, as the line
+str[atoi(argv[1])] = '\0';
+puts a \0 pretty much everywhere we want on str and we then compare str with argv[1] itself
+
+If we run it with "" it will compare two empty strings (atoi returns 0 on error), and launch a shell:
+
+./bonus3 ''

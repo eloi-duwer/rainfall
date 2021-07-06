@@ -35,6 +35,3 @@ int main()
 	puts(buff);
 	return (0);
 }
-
-aaaaaaaaaaaaaaaaaaaa
-aaaabbbbccccddddeeeeffffgggg

