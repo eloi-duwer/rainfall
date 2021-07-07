@@ -21,12 +21,12 @@ int	greetuser(char *msg)
 int main(int argc, char **argv)
 {
 	char	b[20]; //used for strncpy (rep movsl at +256) and for greetuser, but never used explicitely ? ¯\_(ツ)_/¯
-	char	str[72]; //0x50(%esp)
+	char	str[76]; //0x50(%esp)
 	char	*lang;   //0x9c(%esp)
 	
 	if (argc != 3)
 		return (1);
-	memset(str, 0, 19);
+	memset(str, 0, 19 * 4);
 	strncpy(str, argv[1], 40);
 	strncpy(str + 40, argv[2], 32);
 	lang = getenv("LANG");

@@ -7,10 +7,10 @@ int main(int argc, char **argv)
 {
 	FILE	*fd; // 0x9c(%esp)
 	char	str[66]; // 0x18(%esp)
-	char	str2[65]; // Not referred directly, but as an offset of str it seems?? (main+158 and main+273)
+	char	str2[70]; // Not referred directly, but as an offset of str it seems?? (main+158 and main+273)
 
 	fd = fopen("/home/user/end/.pass", "r");
-	memset(str, 0, 34);
+	memset(str, 0, 34 * 4);
 	if (fd == 0 || argc != 2)
 		return (255);
 	fread(str, 1, 66, fd);
