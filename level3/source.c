@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-unsigned int i;
+unsigned int i; // 0x804988c
 
 void v()
 {

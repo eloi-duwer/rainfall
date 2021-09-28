@@ -13,12 +13,12 @@ int m()
 
 int main(int argc, char **argv)
 {
-	char *str;
-	int (*func)(void);
+	char *str; // 0x1c(%esp)
+	int (*func)(void); // 0x18(%esp)
 
 	str = malloc(64);
 	func = malloc(4);
 	func = &m;
 	strcpy(str, argv[1]);
-	return func();
+	func();
 }

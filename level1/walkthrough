@@ -8,6 +8,13 @@ We also see that the main functions calls gets, without anything else.
 We can use a buffer overflow attack to override the return pointer of the main function,
 who will return to run
 
+Find the adress of the function run:
+(gdb) info func run
+All functions matching regular expression "run":
+
+Non-debugging symbols:
+0x08048444  run
+
 To find how many characters we need to write before overriding the return pointer
 we lauch the binary in gdb and as input for gets we send
 aaaabbbbccccddddeeeeffffgggghhhhiiiijjjjkkkkllllmmmmnnnnooooppppqqqqrrrrssssttttuuuuvvvvxxxxyyyyzzzz

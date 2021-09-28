@@ -20,4 +20,4 @@ service sd;fkjasd;lfkjsafl;kjasdfl
 login
 $ cat /home/user/level9/.pass
 
-And we get the flag
+And we have a shell

@@ -3,7 +3,7 @@ The binary seems to be in cpp (in gdb, info func prints functions like 'operator
 We see that the program calls the function setAnnotation on an object with argv[1], and that function calls an unprotected memcpy,
 we can then do a buffer overflow.
 
-The program tries to dereference %eax two times and then calls the adress obtained
+The program also tries to dereference %eax two times and then calls the adress obtained (???)
 We can arrange this to call a shellcode, we will take the one used in level2.
 
 To find the offset, we create the string with python:

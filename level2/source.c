@@ -2,8 +2,8 @@
 
 void p()
 {
-	void *pt;
-	char str[64];
+	char str[64]; // -0x4c(%ebp)
+	void *pt; // -0xc(%ebp)
 	
 	fflush(stdout);
 	gets(str);

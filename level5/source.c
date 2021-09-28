@@ -10,7 +10,7 @@ int o()
 
 n()
 {
-	char str[0x208];
+	char str[0x200];
 
 	fgets(str, 0x200, stdin);
 	printf(str);

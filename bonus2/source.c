@@ -20,7 +20,7 @@ int	greetuser(char *msg)
 
 int main(int argc, char **argv)
 {
-	char	b[20]; //used for strncpy (rep movsl at +256) and for greetuser, but never used explicitely ? ¯\_(ツ)_/¯
+	char	b[20]; //used for strncpy (rep movsl at +256) and for greetuser, but never used explicitely ? ¯\_(ツ)_/¯ it might be an offset of str or another name for it?
 	char	str[76]; //0x50(%esp)
 	char	*lang;   //0x9c(%esp)
 	
@@ -41,6 +41,6 @@ int main(int argc, char **argv)
 			language = 2;
 		}
 	}
-	strncpy(b, str, 19);
+	strncpy(b, str, 20);
 	return (greetuser(b));
 }
